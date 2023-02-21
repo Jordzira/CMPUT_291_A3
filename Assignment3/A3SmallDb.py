@@ -102,33 +102,53 @@ def insert_data():
     conn.commit()
     print(f"{Sellers_Samples} random tuples inserted into {DB_FILENAME}") 
 
-#Store all customer_id
-
+# Store all customer_id
     cursor.execute("SELECT customer_id FROM Customers")
     rows = cursor.fetchall()
-    customer_ids = [row[0] for row in rows]
+    customer_ids = set(row[0] for row in rows)
 
-
-# Open the olist_orders_dataset.csv file and read the data into a list
+# Open the olist_orders_dataset.csv file and process it line by line
+    order_samples = 0
     with open(CSV_FILENAME_ORDERS, "r") as f:
         reader = csv.reader(f)
-        data = list(reader)
-
-# Find rows where customer_id is in the customer_ids list and store customer_id and order_id in a variable
-    customer_order_pairs = []
-    order_samples = 0
-    for row in data[1:]:
-        if row[1] in customer_ids:
-            customer_order_pairs.append((row[1], row[0]))
-            order_samples += 1
-
-    for customer_id, order_id in customer_order_pairs:
-        conn.execute("INSERT INTO Orders (order_id, customer_id) VALUES (?, ?)", 
-        (order_id, customer_id,))
+        next(reader)  # skip header row
+        for row in reader:
+            customer_id = row[1]
+            if customer_id in customer_ids:
+                order_id = row[0]
+                conn.execute("INSERT INTO Orders (order_id, customer_id) VALUES (?, ?)", (order_id, customer_id,))
+                order_samples += 1
     
     conn.commit()
 
     print(f"{order_samples} random tuples inserted into {DB_FILENAME}") 
+
+
+# Store all order_ids and seller_ids that exist in the Orders and Sellers tables
+    cursor.execute("SELECT order_id FROM Orders")
+    rows = cursor.fetchall()
+    order_ids = set(row[0] for row in rows)
+
+    cursor.execute("SELECT seller_id FROM Sellers")
+    rows = cursor.fetchall()
+    seller_ids = set(row[0] for row in rows)
+
+# Process the olist_order_items_dataset.csv file line by line
+    order_items_samples = 0
+    with open(CSV_FILENAME_ORDER_ITEMS, "r") as f:
+        reader = csv.reader(f)
+        next(reader)  # skip header row
+        for row in reader:
+            order_id = row[0]
+            seller_id = row[3]
+            if order_id in order_ids and seller_id in seller_ids:
+                conn.execute("INSERT INTO Order_items (order_id, order_item_id, product_id, seller_id) VALUES (?, ?, ?, ?)",
+                         (order_id, int(row[1]), row[2], seller_id))
+                order_items_samples += 1
+
+    conn.commit()
+
+    print(f"{order_items_samples} random tuples inserted into {DB_FILENAME}")
     
     return       
 
