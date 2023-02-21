@@ -1,0 +1,7 @@
+-- Q4 NOT COMPLETE
+SELECT Or1.customer_id                          -- selects random customer with more than one order
+FROM Orders Or1, Orders Or2
+WHERE Or1.customer_id = Or2.customer_id AND
+      Or1.order_id <> Or2.order_id
+ORDER BY RANDOM()
+LIMIT 1;
