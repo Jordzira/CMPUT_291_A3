@@ -3,7 +3,7 @@ import sqlite3
 import random
 import os
 
-connection = None
+conn = None
 cursor = None
 
 # Get path directory of Python script
@@ -20,16 +20,16 @@ NUM_SAMPLES = 10000
 
 # Connect to the database and create the Customers table
 def connect(DB_FILENAME):
-    global connection, cursor 
-    connection = sqlite3.connect(DB_FILENAME)
-    cursor = connection.cursor()
+    global conn, cursor 
+    conn = sqlite3.connect(DB_FILENAME)
+    cursor = conn.cursor()
     cursor.execute(' PRAGMA foreign_keys=ON; ')
-    connection.commit()
+    conn.commit()
     return
 
 # Create table using query in Assign 1
 def create_table():
-    global connection, cursor 
+    global conn, cursor 
     cursor.execute('''
                     CREATE TABLE Customers(
                         customer_id TEXT, 
@@ -52,18 +52,18 @@ def insert_data():
         cursor.execute("INSERT INTO Customers (customer_id, customer_postal_code) VALUES (?, ?)",
               (customer_id, customer_postal_code))
 
-    connection.commit()
+    conn.commit()
     print(f"{NUM_SAMPLES} random tuples inserted into {DB_FILENAME}") 
     return       
 
 
 
 def main():
-    global connection, cursor 
+    global conn, cursor 
     connect(DB_FILENAME)
     create_table()
     insert_data()
-    connection.close()
+    conn.close()
 
 
 if __name__ == "__main__":
