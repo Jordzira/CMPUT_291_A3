@@ -14,7 +14,7 @@ DB_FILENAME = os.path.join(script_dir, "A3Small.db")
 
 # Define the CSV filenames
 CSV_FILENAME_CUSTOMERS = os.path.join(script_dir, "olist_customers_dataset.csv")
-CSV_FILENAME_ORDER_SELLERS = os.path.join(script_dir, "olist_sellers_dataset.csv")
+CSV_FILENAME_SELLERS = os.path.join(script_dir, "olist_sellers_dataset.csv")
 CSV_FILENAME_ORDERS = os.path.join(script_dir, "olist_orders_dataset.csv")
 CSV_FILENAME_ORDER_ITEMS = os.path.join(script_dir, "olist_order_items_dataset.csv")
 
@@ -84,8 +84,8 @@ def insert_data():
     conn.commit()
     print(f"{Customer_Samples} random tuples inserted into {DB_FILENAME}") 
 
-# Open the olist_orders_dataset.csv file and read the data into a list
-    with open(CSV_FILENAME_ORDERS, "r") as f:
+# Open the olist_sellers_dataset.csv file and read the data into a list
+    with open(CSV_FILENAME_SELLERS, "r") as f:
         reader = csv.reader(f)
         data = list(reader)
 
@@ -101,6 +101,34 @@ def insert_data():
 
     conn.commit()
     print(f"{Sellers_Samples} random tuples inserted into {DB_FILENAME}") 
+
+#Store all customer_id
+
+    cursor.execute("SELECT customer_id FROM Customers")
+    rows = cursor.fetchall()
+    customer_ids = [row[0] for row in rows]
+
+
+# Open the olist_orders_dataset.csv file and read the data into a list
+    with open(CSV_FILENAME_ORDERS, "r") as f:
+        reader = csv.reader(f)
+        data = list(reader)
+
+# Find rows where customer_id is in the customer_ids list and store customer_id and order_id in a variable
+    customer_order_pairs = []
+    order_samples = 0
+    for row in data[1:]:
+        if row[1] in customer_ids:
+            customer_order_pairs.append((row[1], row[0]))
+            order_samples += 1
+
+    for customer_id, order_id in customer_order_pairs:
+        conn.execute("INSERT INTO Orders (order_id, customer_id) VALUES (?, ?)", 
+        (order_id, customer_id,))
+    
+    conn.commit()
+
+    print(f"{order_samples} random tuples inserted into {DB_FILENAME}") 
     
     return       
 
