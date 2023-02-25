@@ -1,0 +1,10 @@
+-- random_postal is the random customer_postal_code
+SELECT COUNT(O.order_id)
+FROM Customers C, Orders O
+WHERE C.customer_postal_code=:random_postal AND
+        C.customer_id = O.customer_id AND
+      (SELECT COUNT(Oi.order_item_id)			-- Number of items in this order
+       FROM Order_items Oi
+       WHERE O.order_id = Oi.order_id) >
+      (SELECT (CAST(COUNT(Oi2.order_item_id) as real) / CAST(COUNT(DISTINCT Oi2.order_id)as real)) -- Avg number of items per order
+        FROM Order_items Oi2);
