@@ -2,15 +2,15 @@
 CREATE VIEW OrderSize(oid,size)
 AS SELECT Orders.order_id, COUNT(order_item_id)
     FROM Orders, Order_items
-    WHERE Orders.order_id = Order_items.order_id;
-
+    WHERE Orders.order_id = Order_items.order_id
+GROUP BY Orders.order_id;
 -- Number of orders with more items than average
-SELECT COUNT (*)
-FROM Customers
-WHERE customer_postal_code=:random_postal AND
-      (SELECT COUNT(order_item_id)
-       FROM Orders, Order_items
-       WHERE Customers.customer_id = Orders.customer_id AND
-             Orders.order_id = Order_items.order_id) >
+SELECT COUNT(O.order_id)
+FROM Customers C, Orders O
+WHERE C.customer_postal_code=:random_postal AND
+        C.customer_id = O.customer_id AND
+      (SELECT COUNT(Oi.order_item_id)
+       FROM Order_items Oi
+       WHERE O.order_id = Oi.order_id) >
             (SELECT AVG(size)
              FROM OrderSize);
