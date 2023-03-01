@@ -24,7 +24,7 @@ def connect(DB_FILENAME):
     global conn, cursor 
     conn = sqlite3.connect(DB_FILENAME)
     cursor = conn.cursor()
-    cursor.execute(' PRAGMA foreign_keys=ON; ')
+    cursor.execute(' PRAGMA foreign_keys=ON; ') # difference occuring here
     conn.commit()
     return
 
