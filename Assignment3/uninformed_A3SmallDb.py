@@ -24,7 +24,7 @@ def connect(DB_FILENAME):
     global conn, cursor 
     conn = sqlite3.connect(DB_FILENAME)
     cursor = conn.cursor()
-    cursor.execute(' PRAGMA foreign_keys=ON; ')
+    cursor.execute(' PRAGMA foreign_keys=FALSE; ') # change
     conn.commit()
     return
 
@@ -34,23 +34,19 @@ def create_table():
     cursor.execute('''
                     CREATE TABLE Customers(
                         customer_id TEXT, 
-                        customer_postal_code INTEGER, 
-                        PRIMARY KEY(customer_id));
+                        customer_postal_code INTEGER);
                         ''')
 
     cursor.execute('''
                     CREATE TABLE Sellers(
                         seller_id TEXT, 
-                        seller_postal_code INTEGER, 
-                        PRIMARY KEY(seller_id));
+                        seller_postal_code INTEGER);
                         ''')
     
     cursor.execute('''
                     CREATE TABLE Orders(
                         order_id TEXT, 
-                        customer_id TEXT, 
-                        PRIMARY KEY(order_id),
-                        FOREIGN KEY(customer_id) REFERENCES Customers(customer_id));
+                        customer_id TEXT);
                         ''')
     
     cursor.execute('''
@@ -58,10 +54,7 @@ def create_table():
                         order_id TEXT, 
                         order_item_id INTEGER, 
                         product_id TEXT, 
-                        seller_id TEXT, 
-                        PRIMARY KEY(order_id, order_item_id, product_id, seller_id),
-                        FOREIGN KEY(seller_id) REFERENCES Sellers(seller_id),
-                        FOREIGN KEY(order_id) REFERENCES Orders(order_id));
+                        seller_id TEXT);
                         ''')
     return
 
