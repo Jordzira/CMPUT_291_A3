@@ -97,14 +97,20 @@ def insert_data():
     
     return       
 
-def auto_index(choice):
+def auto_index_and_fkeys(index_choice, key_choice):
     # alter auto index
     global conn, cursor 
     
-    if choice == 'on':
-        cursor.execute("PRAGMA automatic_index = ON")
-    elif choice == 'off':
-        cursor.execute("PRAGMA automatic_index = OFF")
+    if index_choice == 'on':
+        cursor.execute("PRAGMA automatic_index = ON;")
+    elif index_choice == 'off':
+        cursor.execute("PRAGMA automatic_index = OFF;")
+        
+    if key_choice == 'on':
+        cursor.execute(' PRAGMA foreign_keys=ON; ')
+    elif key_choice == 'off':
+        cursor.execute(' PRAGMA foreign_keys=OFF; ')
+    
     
     conn.commit()
 
@@ -193,14 +199,13 @@ def main():
     insert_data()
     
     # uninformed
-    auto_index('off')
+    auto_index_and_fkeys('off', 'off')
     
     # self-optimized
-    auto_index('on')
+    auto_index_and_fkeys('on', 'on')
     add_keys()
     
     # user-optimized
-    auto_index('off') # double check this is what is meant by 'freely'
     create_indexes()
     
     conn.close()
