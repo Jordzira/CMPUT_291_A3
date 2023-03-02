@@ -5,3 +5,4 @@ WHERE C.customer_postal_code=:random_postal AND
       (SELECT COUNT(Oi.order_item_id)
        FROM Order_items Oi
        WHERE O.order_id = Oi.order_id) > 1;
+

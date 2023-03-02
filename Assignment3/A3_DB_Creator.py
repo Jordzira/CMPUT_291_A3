@@ -153,7 +153,6 @@ def insert_data():
     return       
 
 
-
 def main():
     global conn, cursor 
     connect(DB_FILENAME)
