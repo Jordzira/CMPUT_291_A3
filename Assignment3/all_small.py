@@ -14,7 +14,7 @@ DB_FILENAME = os.path.join(script_dir, "A3Small.db")
 
 # Define the CSV filenames
 CSV_FILENAME_CUSTOMERS = os.path.join(script_dir, "olist_customers_dataset.csv")
-CSV_FILENAME_ORDER_SELLERS = os.path.join(script_dir, "olist_sellers_dataset.csv")
+CSV_FILENAME_SELLERS = os.path.join(script_dir, "olist_sellers_dataset.csv")
 CSV_FILENAME_ORDERS = os.path.join(script_dir, "olist_orders_dataset.csv")
 CSV_FILENAME_ORDER_ITEMS = os.path.join(script_dir, "olist_order_items_dataset.csv")
 
@@ -24,7 +24,6 @@ def connect(DB_FILENAME):
     global conn, cursor 
     conn = sqlite3.connect(DB_FILENAME)
     cursor = conn.cursor()
-    cursor.execute(' PRAGMA foreign_keys=ON; ') # difference occuring here
     conn.commit()
     return
 
@@ -77,8 +76,8 @@ def insert_data():
     conn.commit()
     print(f"{Customer_Samples} random tuples inserted into {DB_FILENAME}") 
 
-# Open the olist_orders_dataset.csv file and read the data into a list
-    with open(CSV_FILENAME_ORDERS, "r") as f:
+# Open the olist_sellers_dataset.csv file and read the data into a list
+    with open(CSV_FILENAME_SELLERS, "r") as f:
         reader = csv.reader(f)
         data = list(reader)
 
@@ -94,10 +93,71 @@ def insert_data():
 
     conn.commit()
     print(f"{Sellers_Samples} random tuples inserted into {DB_FILENAME}") 
-    
-    return       
 
-def auto_index_and_fkeys(index_choice, key_choice):
+# Store all customer_id
+    cursor.execute("SELECT customer_id FROM Customers")
+    rows = cursor.fetchall()
+    customer_ids = set(row[0] for row in rows)
+
+# Open the olist_orders_dataset.csv file and process it line by line
+    order_samples = 0
+    with open(CSV_FILENAME_ORDERS, "r") as f:
+        reader = csv.reader(f)
+        next(reader)  # skip header row
+        for row in reader:
+            customer_id = row[1]
+            if customer_id in customer_ids:
+                order_id = row[0]
+                conn.execute("INSERT INTO Orders (order_id, customer_id) VALUES (?, ?)", (order_id, customer_id,))
+                order_samples += 1
+    
+    conn.commit()
+
+    print(f"{order_samples} random tuples inserted into {DB_FILENAME}") 
+
+
+# Store all order_ids and seller_ids that exist in the Orders and Sellers tables
+    cursor.execute("SELECT order_id FROM Orders")
+    rows = cursor.fetchall()
+    order_ids = set(row[0] for row in rows)
+
+    cursor.execute("SELECT seller_id FROM Sellers")
+    rows = cursor.fetchall()
+    seller_ids = set(row[0] for row in rows)
+
+# Process the olist_order_items_dataset.csv file line by line
+    order_items_samples = 0
+    with open(CSV_FILENAME_ORDER_ITEMS, "r") as f:
+        reader = csv.reader(f)
+        next(reader)  # skip header row
+        for row in reader:
+            order_id = row[0]
+            seller_id = row[3]
+            if order_id in order_ids and seller_id in seller_ids:
+                conn.execute("INSERT INTO Order_items (order_id, order_item_id, product_id, seller_id) VALUES (?, ?, ?, ?)",
+                         (order_id, int(row[1]), row[2], seller_id))
+                order_items_samples += 1
+
+    conn.commit()
+
+    print(f"{order_items_samples} random tuples inserted into {DB_FILENAME}")
+
+    return    
+
+def drop_tables():
+    # clean up
+    global conn, cursor 
+    cursor.execute("DROP TABLE IF EXISTS Customers;")
+    cursor.execute("DROP TABLE IF EXISTS Sellers;")
+    cursor.execute("DROP TABLE IF EXISTS Orders;")
+    cursor.execute("DROP TABLE IF EXISTS Order_items;")
+    
+    cursor.execute("DROP TABLE IF EXISTS Old_Customers;")
+    cursor.execute("DROP TABLE IF EXISTS Old_Sellers;")
+    cursor.execute("DROP TABLE IF EXISTS Old_Orders;")
+    cursor.execute("DROP TABLE IF EXISTS Old_Order_items;")   
+    
+def auto_index_and_fkeys(index_choice, key_choice): #wiuhgdfalwiugflauifg
     # alter auto index
     global conn, cursor 
     
@@ -111,9 +171,7 @@ def auto_index_and_fkeys(index_choice, key_choice):
     elif key_choice == 'off':
         cursor.execute(' PRAGMA foreign_keys=OFF; ')
     
-    
     conn.commit()
-
 
 def add_keys():
     # add primary and foreign keys for each table
@@ -166,7 +224,7 @@ def add_keys():
 
     
     conn.commit()
-
+    
 def create_indexes():
     # create indexes, for each table, for user-optimized portion
     global conn, cursor 
@@ -177,19 +235,7 @@ def create_indexes():
     cursor.execute("CREATE INDEX order_items_index ON Order_items(order_id, order_item_id, product_id, seller_id);")
     
     conn.commit()
-    
-def drop_tables():
-    # clean up
-    global conn, cursor 
-    cursor.execute("DROP TABLE IF EXISTS Customers;")
-    cursor.execute("DROP TABLE IF EXISTS Sellers;")
-    cursor.execute("DROP TABLE IF EXISTS Orders;")
-    cursor.execute("DROP TABLE IF EXISTS Order_items;")
-    
-    cursor.execute("DROP TABLE IF EXISTS Old_Customers;")
-    cursor.execute("DROP TABLE IF EXISTS Old_Sellers;")
-    cursor.execute("DROP TABLE IF EXISTS Old_Orders;")
-    cursor.execute("DROP TABLE IF EXISTS Old_Order_items;")
+
 
 def main():
     global conn, cursor 
@@ -199,10 +245,10 @@ def main():
     insert_data()
     
     # uninformed
-    auto_index_and_fkeys('off', 'off')
+    auto_index_and_fkeys('off', 'off') # akrejnfaer.agn.kbngrea.gb
     
     # self-optimized
-    auto_index_and_fkeys('on', 'on')
+    auto_index_and_fkeys('on', 'on') # wiuaegfhlaigflwiaguf
     add_keys()
     
     # user-optimized
