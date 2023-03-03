@@ -18,7 +18,7 @@ databases = ( #altered
     "MediumDB",
     "LargeDB",
 )
-expiriments = {
+experiments = {
     # need to track time and store it in the variables in the array so it can plot bars accordingly
     "User-Optimized": np.array([uo_small_time, uo_medium_time, uo_large_time]),
     "Self-Optimized": np.array([so_small_time, so_medium_time, so_large_time]),
