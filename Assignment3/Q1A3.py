@@ -3,6 +3,8 @@ import sqlite3
 import random
 import os
 import time
+import matplotlib.pyplot as plt
+import numpy as np
 
 conn = None
 cursor = None
@@ -13,13 +15,34 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 # Define the database filename
 DB_FILENAME = os.path.join(script_dir, "A3Small.db")
 
+# Graph 
+def graph(uninformed_times, self_optimized_times, user_optimized_times):
+    databases = ( 
+        "SmallDB",
+        "MediumDB",
+        "LargeDB",
+    )
+    # need to track time and store it in the variables in the array so it can plot bars accordingly
+    User_Optimized = np.array([user_optimized_times[0], user_optimized_times[1], user_optimized_times[2]])
+    Self_Optimized = np.array([self_optimized_times[0], self_optimized_times[1], self_optimized_times[2]])
+    Uninformed = np.array([uninformed_times[0], uninformed_times[1], uninformed_times[2]])
+
+    plt.bar(databases, User_Optimized, color = 'r')
+    plt.bar(databases, Self_Optimized, bottom = User_Optimized, color = 'b')
+    plt.bar(databases, Uninformed, bottom = User_Optimized + Self_Optimized, color = 'g')
+    
+    plt.xlabel("Databases")
+    plt.ylabel("Time in Seconds")
+    plt.legend(["User Optimized","Self Optimized", "Uninformed"])
+    plt.title("Query 1 (runtime in seconds)")
+    
+    plt.savefig("Q1A3chart.png")
 
 # Connect to the database and create the Customers table
 def connect(DB_FILENAME):
     global conn, cursor 
     conn = sqlite3.connect(DB_FILENAME)
     cursor = conn.cursor()
-    cursor.execute(' PRAGMA foreign_keys=ON; ') # difference occuring here
     conn.commit()
     return     
 
@@ -166,7 +189,7 @@ def main():
     for db in range(0,3):
         # Define the database filename
         DB_FILENAME = os.path.join(script_dir, db_names[db])
-        print(f"connected to" + db_names[db])
+        print(f"Connected to " + db_names[db])
         connect(DB_FILENAME)
         # set scenario uninformed
         auto_index_and_fkeys('off', 'off')
@@ -189,8 +212,9 @@ def main():
         ''' done scenario uninformed, start self-optimized '''
 
         # set scenario self-optimized
-        auto_index_and_fkeys('on', 'on')
         add_keys()
+        auto_index_and_fkeys('on', 'on')
+
 
         # start time
         start = time.time()
@@ -225,7 +249,9 @@ def main():
 
         # disconnect from database
         conn.close()
+    
         print(uninformed_times[db], self_optimized_times[db], user_optimized_times[db])
+    graph(uninformed_times, self_optimized_times, user_optimized_times)
 
 if __name__ == "__main__":
     main()
