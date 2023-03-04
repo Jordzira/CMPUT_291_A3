@@ -146,6 +146,7 @@ def drop_tables():
 
 def execute_Q3():
     global conn, cursor
+    cursor.execute("DROP VIEW IF EXISTS OrderSize;")
     # execute Q3 50 times
     for q in range(0,50):
         # randomly select a postal code

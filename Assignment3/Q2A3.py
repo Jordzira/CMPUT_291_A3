@@ -147,7 +147,7 @@ def drop_tables():
 def execute_Q2():
     global conn, cursor
     # execute Q2 50 times
-    for q in range(0,50):
+    for q in range(0,500):
         # randomly select a postal code
         cursor.execute('''SELECT customer_postal_code
                         FROM Customers
@@ -207,7 +207,7 @@ def main():
         end = time.time()
 
         # average execution time
-        ui_execution_time = (end - start)/50
+        ui_execution_time = (end - start)/500
         # append scenario to db's times list
         uninformed_times.append(ui_execution_time)
 

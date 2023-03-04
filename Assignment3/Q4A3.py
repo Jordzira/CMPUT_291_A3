@@ -147,6 +147,7 @@ def drop_tables():
 def execute_Q4():
     global conn, cursor
     # execute Q4 50 times
+    cursor.execute("DROP VIEW IF EXISTS OrderSize;")
     for q in range(0,50):
         # randomly select a postal code
         cursor.execute('''SELECT customer_postal_code

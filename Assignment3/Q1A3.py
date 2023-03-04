@@ -127,10 +127,8 @@ def create_indexes():
     cursor.execute("DROP INDEX IF EXISTS orders_index;")
     cursor.execute("DROP INDEX IF EXISTS order_items_index;")
 
-    cursor.execute("CREATE INDEX customers_index ON Customers(customer_id);")
-    cursor.execute("CREATE INDEX sellers_index ON Sellers(seller_id);")
-    cursor.execute("CREATE INDEX orders_index ON Orders(order_id);")
-    cursor.execute("CREATE INDEX order_items_index ON Order_items(order_id, order_item_id, product_id, seller_id);")
+    cursor.execute("CREATE INDEX customers_index ON Customers(customer_postal_code);")
+
     
     conn.commit()
 
@@ -149,6 +147,7 @@ def drop_tables():
 
 def execute_Q1():
     global conn, cursor
+    cursor.execute("DROP VIEW IF EXISTS OrderSize;")
     # execute Q1 50 times
     for q in range(0,50):
         # randomly select a postal code
