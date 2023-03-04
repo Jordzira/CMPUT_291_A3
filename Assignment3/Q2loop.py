@@ -2,6 +2,14 @@
 
 # code for tracking time
 start = time.time()
+
+# create OrderSize view
+cursor.execute('''CREATE VIEW OrderSize(oid,size)
+                AS SELECT Orders.order_id, COUNT(order_item_id)
+                FROM Orders, Order_items
+                WHERE Orders.order_id = Order_items.order_id
+                GROUP BY Orders.order_id;''')
+
 # execute Q1 50 times
 for q in range(0,50):
     # randomly select a postal code
@@ -10,13 +18,6 @@ for q in range(0,50):
                     ORDER BY RANDOM()
                     LIMIT 1''')
     random_postal = cursor.fetchone()
-
-    # create OrderSize view
-    cursor.execute('''CREATE VIEW OrderSize(oid,size)
-                    AS SELECT Orders.order_id, COUNT(order_item_id)
-                    FROM Orders, Order_items
-                    WHERE Orders.order_id = Order_items.order_id
-                    GROUP BY Orders.order_id;''')
     
     cursor.execute('''SELECT COUNT(O.order_id)
                     FROM Customers C, Orders O
