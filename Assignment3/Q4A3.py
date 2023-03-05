@@ -126,10 +126,9 @@ def create_indexes():
     cursor.execute("DROP INDEX IF EXISTS orders_index;")
     cursor.execute("DROP INDEX IF EXISTS order_items_index;")
 
-    cursor.execute("CREATE INDEX customers_index ON Customers(customer_id);")
-    cursor.execute("CREATE INDEX sellers_index ON Sellers(seller_id);")
-    cursor.execute("CREATE INDEX orders_index ON Orders(order_id);")
-    cursor.execute("CREATE INDEX order_items_index ON Order_items(order_id, order_item_id, product_id, seller_id);")
+    cursor.execute("CREATE INDEX sellers_index ON Sellers(seller_id, seller_postal_code);")
+    cursor.execute("CREATE INDEX orders_index ON Orders(order_id, customer_id);")
+    cursor.execute("CREATE INDEX order_items_index ON Order_items(order_id, order_item_id, seller_id);")
     
     conn.commit()
 
