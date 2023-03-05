@@ -3,6 +3,8 @@ import sqlite3
 import random
 import os
 import time
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -146,6 +148,14 @@ def drop_tables():
 
 def execute_Q2():
     global conn, cursor
+	cursor.execute("DROP VIEW IF EXISTS OrderSize;")
+    # create OrderSize view
+    cursor.execute('''CREATE VIEW OrderSize(oid,size)
+                    AS SELECT Orders.order_id, COUNT(order_item_id)
+                    FROM Orders, Order_items
+                    WHERE Orders.order_id = Order_items.order_id
+                    GROUP BY Orders.order_id;''')
+	
     # execute Q2 50 times
     for q in range(0,50):
         # randomly select a postal code
@@ -154,13 +164,6 @@ def execute_Q2():
                         ORDER BY RANDOM()
                         LIMIT 1''')
         random_postal = cursor.fetchone()
-        cursor.execute("DROP VIEW IF EXISTS OrderSize;")
-        # create OrderSize view
-        cursor.execute('''CREATE VIEW OrderSize(oid,size)
-                        AS SELECT Orders.order_id, COUNT(order_item_id)
-                        FROM Orders, Order_items
-                        WHERE Orders.order_id = Order_items.order_id
-                        GROUP BY Orders.order_id;''')
         
         cursor.execute('''SELECT COUNT(O.order_id)
                         FROM Customers C, Orders O
