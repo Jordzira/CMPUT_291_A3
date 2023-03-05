@@ -3,6 +3,8 @@ import sqlite3
 import random
 import os
 import time
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -146,7 +148,7 @@ def drop_tables():
 def execute_Q2():
     global conn, cursor
     # create view
-    cursor.execute("DROP VIEW IF EXISTS OrderSize;")
+	# create OrderSize view
     cursor.execute('''CREATE VIEW OrderSize(oid,size)
                     AS SELECT Orders.order_id, COUNT(order_item_id)
                     FROM Orders, Order_items
@@ -197,6 +199,7 @@ def main():
         connect(DB_FILENAME)
         # set scenario uninformed
         auto_index_and_fkeys('off', 'off')
+    	cursor.execute("DROP VIEW IF EXISTS OrderSize;")
 
         # start time
         start = time.time()
@@ -218,7 +221,7 @@ def main():
         # set scenario self-optimized
         add_keys()
         auto_index_and_fkeys('on', 'on')
-
+    	cursor.execute("DROP VIEW IF EXISTS OrderSize;")
 
         # start time
         start = time.time()
@@ -239,6 +242,8 @@ def main():
 
         # set scenario user-optimized
         create_indexes()
+    	cursor.execute("DROP VIEW IF EXISTS OrderSize;")
+		
         # start time
         start = time.time()
         # runs scenario uninformed 50 times
