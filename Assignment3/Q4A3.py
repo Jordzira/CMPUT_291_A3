@@ -149,22 +149,21 @@ def drop_tables():
 def execute_Q4():
     global conn, cursor
     # execute Q4 50 times
-    cursor.execute("DROP VIEW IF EXISTS OrderSize;")
     for q in range(0,50):
-        # randomly select a postal code
-        cursor.execute('''SELECT customer_postal_code
-                    FROM Customers
-                    ORDER BY RANDOM()
-                    LIMIT 1''')
-        random_postal = cursor.fetchone()
-        # runs q4
-        cursor.execute('''SELECT COUNT(O.order_id)
-                    FROM Customers C, Orders O
-                    WHERE C.customer_postal_code=:random_postal AND
-                        C.customer_id = O.customer_id AND
-                       (SELECT COUNT(Oi.order_item_id)
-                        FROM Order_items Oi
-                        WHERE O.order_id = Oi.order_id) > 1;''', {"random_postal":random_postal[0]})
+    # randomly select a random customer with >1 items in their order
+        cursor.execute('''SELECT DISTINCT O.customer_id
+                            FROM Orders O, Order_items Oi
+                            WHERE O.order_id = Oi.order_id AND
+                                Oi.order_item_id > 1
+                            ORDER BY RANDOM()
+                            LIMIT 1;''')
+        random_customer = cursor.fetchone()
+
+        cursor.execute('''SELECT COUNT( DISTINCT(S.seller_postal_code))
+                        FROM Sellers S, Orders O, Order_items Oi
+                        WHERE O.customer_id =:random_customer AND
+                            O.order_id = Oi.order_id AND
+                            Oi.seller_id = S.seller_id;''', {"random_customer":random_customer[0]})
     return 
 
 def reconnect(DB_FILENAME):
@@ -193,7 +192,7 @@ def main():
         connect(DB_FILENAME)
         # set scenario uninformed
         auto_index_and_fkeys('off', 'off')
-
+        cursor.execute("DROP VIEW IF EXISTS OrderSize;")
         # start time
         start = time.time()
         # runs scenario uninformed 50 times
@@ -215,7 +214,7 @@ def main():
         add_keys()
         auto_index_and_fkeys('on', 'on')
 
-
+        cursor.execute("DROP VIEW IF EXISTS OrderSize;")
         # start time
         start = time.time()
         # runs scenario uninformed 50 times
@@ -236,6 +235,7 @@ def main():
         # set scenario user-optimized
         create_indexes()
         # start time
+        cursor.execute("DROP VIEW IF EXISTS OrderSize;")
         start = time.time()
         # runs scenario uninformed 50 times
         execute_Q4()
