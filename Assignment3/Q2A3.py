@@ -132,19 +132,6 @@ def create_indexes():
     
     conn.commit()
 
-def drop_tables():
-    # clean up
-    global conn, cursor 
-    cursor.execute("DROP TABLE IF EXISTS Customers;")
-    cursor.execute("DROP TABLE IF EXISTS Sellers;")
-    cursor.execute("DROP TABLE IF EXISTS Orders;")
-    cursor.execute("DROP TABLE IF EXISTS Order_items;")
-    
-    cursor.execute("DROP TABLE IF EXISTS Old_Customers;")
-    cursor.execute("DROP TABLE IF EXISTS Old_Sellers;")
-    cursor.execute("DROP TABLE IF EXISTS Old_Orders;")
-    cursor.execute("DROP TABLE IF EXISTS Old_Order_items;")
-
 def execute_Q2():
     global conn, cursor
     # create view
