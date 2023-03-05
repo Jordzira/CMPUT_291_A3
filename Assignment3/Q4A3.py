@@ -172,6 +172,51 @@ def reconnect(DB_FILENAME):
     cursor = conn.cursor()
     return
 
+def uninformed():
+    global conn, cursor
+    # set scenario uninformed
+    auto_index_and_fkeys('off', 'off')
+    cursor.execute("DROP VIEW IF EXISTS OrderSize;")
+    # start time
+    start = time.time()
+    # runs scenario uninformed 50 times
+    execute_Q4()
+    # end time
+    end = time.time()
+    # average execution time
+    ui_execution_time = (end - start)/50
+    return ui_execution_time
+
+def self_optimized():
+    # set scenario self-optimized
+    add_keys()
+    auto_index_and_fkeys('on', 'on')
+    cursor.execute("DROP VIEW IF EXISTS OrderSize;")
+    # start time
+    start = time.time()
+    # runs scenario uninformed 50 times
+    execute_Q4()
+    # end time
+    end = time.time()
+    # average execution time
+    so_execution_time = (end - start)/50
+    return so_execution_time
+
+def user_optimized():
+    # set scenario user-optimized
+    create_indexes()
+    cursor.execute("DROP VIEW IF EXISTS OrderSize;")
+    # start time
+    start = time.time()
+    # runs scenario uninformed 50 times
+    execute_Q4()
+    # end time
+    end = time.time()
+    # average execution time
+    uo_execution_time = (end - start)/50
+    return uo_execution_time
+
+
 def main():
     global conn, cursor 
     # list of database filenames
@@ -189,68 +234,31 @@ def main():
         DB_FILENAME = os.path.join(script_dir, db_names[db])
         print(f"Connected to " + db_names[db])
         connect(DB_FILENAME)
-        # set scenario uninformed
-        auto_index_and_fkeys('off', 'off')
-        cursor.execute("DROP VIEW IF EXISTS OrderSize;")
-        # start time
-        start = time.time()
-        # runs scenario uninformed 50 times
-        execute_Q4()
-        # end time
-        end = time.time()
 
-        # average execution time
-        ui_execution_time = (end - start)/50
+        # run uninformed scenario
+        ui_execution_time = uninformed()
         # append scenario to db's times list
         uninformed_times.append(ui_execution_time)
-
         # disconnect from db and reconnect to same database (minimize caching effects)
         reconnect(DB_FILENAME)
 
-        ''' done scenario uninformed, start self-optimized '''
-
-        # set scenario self-optimized
-        add_keys()
-        auto_index_and_fkeys('on', 'on')
-
-        cursor.execute("DROP VIEW IF EXISTS OrderSize;")
-        # start time
-        start = time.time()
-        # runs scenario uninformed 50 times
-        execute_Q4()
-        # end time
-        end = time.time()
-
-        # average execution time
-        so_execution_time = (end - start)/50
+        # run scenario self-optimized
+        so_execution_time = self_optimized()
         # append scenario to db's times list
         self_optimized_times.append(so_execution_time)
-
         # disconnect from db and reconnect to same database (minimize caching effects)
         reconnect(DB_FILENAME)
 
-        ''' done scenario self-optimized, start user-optimized'''
-
-        # set scenario user-optimized
-        create_indexes()
-        # start time
-        cursor.execute("DROP VIEW IF EXISTS OrderSize;")
-        start = time.time()
-        # runs scenario uninformed 50 times
-        execute_Q4()
-        # end time
-        end = time.time()
-
-        # average execution time
-        uo_execution_time = (end - start)/50
+        # run scenario user-optimized
+        uo_execution_time = user_optimized()
         # append scenario to db's times list
         user_optimized_times.append(uo_execution_time)
-
         # disconnect from database
         conn.close()
     
         print(uninformed_times[db], self_optimized_times[db], user_optimized_times[db])
     graph(uninformed_times, self_optimized_times, user_optimized_times)
+
 
 if __name__ == "__main__":
     main()
