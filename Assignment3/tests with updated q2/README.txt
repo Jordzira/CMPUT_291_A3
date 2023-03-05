@@ -13,5 +13,4 @@ in the assignment guide)  is uninformed has SQLite’s auto index and foreign ke
 user-optimized have auto index and foreign keys enabled. 
 
 Note for Q4:
-
 A "customer with more than one order" is assumed to be a customer with 1 order with multiple items in that order. This assumption is based off a TA's answer in the class discord server.
