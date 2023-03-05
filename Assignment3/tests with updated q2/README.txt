@@ -5,6 +5,8 @@ Resources Used:
 
 "We declare that we did not collaborate with anyone outside our own group in this assignment"
 
+Covering indexes and index creation: https://medium.com/@JasonWyatt/squeezing-performance-from-sqlite-indexes-indexes-c4e175f3c346
+
 User Optimized Report:
 
 Three Scenarios:
