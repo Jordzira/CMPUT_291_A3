@@ -3,8 +3,6 @@ import sqlite3
 import random
 import os
 import time
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -126,10 +124,9 @@ def create_indexes():
     cursor.execute("DROP INDEX IF EXISTS orders_index;")
     cursor.execute("DROP INDEX IF EXISTS order_items_index;")
 
-    cursor.execute("CREATE INDEX customers_index ON Customers(customer_id);")
-    cursor.execute("CREATE INDEX sellers_index ON Sellers(seller_id);")
-    cursor.execute("CREATE INDEX orders_index ON Orders(order_id);")
-    cursor.execute("CREATE INDEX order_items_index ON Order_items(order_id, order_item_id, product_id, seller_id);")
+    cursor.execute("CREATE INDEX customers_index ON Customers(customer_postal_code, customer_id);")
+    cursor.execute("CREATE INDEX orders_index ON Orders(order_id, customer_id);")
+    cursor.execute("CREATE INDEX order_items_index ON Order_items(order_id, order_item_id);")
     
     conn.commit()
 
@@ -148,14 +145,13 @@ def drop_tables():
 
 def execute_Q2():
     global conn, cursor
-	cursor.execute("DROP VIEW IF EXISTS OrderSize;")
-    # create OrderSize view
+    # create view
+    cursor.execute("DROP VIEW IF EXISTS OrderSize;")
     cursor.execute('''CREATE VIEW OrderSize(oid,size)
                     AS SELECT Orders.order_id, COUNT(order_item_id)
                     FROM Orders, Order_items
                     WHERE Orders.order_id = Order_items.order_id
                     GROUP BY Orders.order_id;''')
-	
     # execute Q2 50 times
     for q in range(0,50):
         # randomly select a postal code
