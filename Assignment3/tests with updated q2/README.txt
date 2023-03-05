@@ -7,3 +7,7 @@ Resources Used:
 
 User Optimized Report:
 
+Three Scenarios:
+From talks with a TA, it is our understanding that the primary differences between the three scenarios (not mentioned
+in the assignment guide)  is uninformed has SQLite’s auto index and foreign keys disabled, and both self-informed and
+user-optimized have auto index and foreign keys enabled. 
