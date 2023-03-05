@@ -194,7 +194,7 @@ def main():
         connect(DB_FILENAME)
         # set scenario uninformed
         auto_index_and_fkeys('off', 'off')
-		cursor.execute("DROP VIEW IF EXISTS OrderSize;")
+        cursor.execute("DROP VIEW IF EXISTS OrderSize;")
 
         # start time
         start = time.time()
@@ -216,7 +216,7 @@ def main():
         # set scenario self-optimized
         add_keys()
         auto_index_and_fkeys('on', 'on')
-    	cursor.execute("DROP VIEW IF EXISTS OrderSize;")
+        cursor.execute("DROP VIEW IF EXISTS OrderSize;")
 
         # start time
         start = time.time()
@@ -237,7 +237,7 @@ def main():
 
         # set scenario user-optimized
         create_indexes()
-		cursor.execute("DROP VIEW IF EXISTS OrderSize;")
+        cursor.execute("DROP VIEW IF EXISTS OrderSize;")
 			
         # start time
         start = time.time()
